@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 1000" width="800" height="1000" role="img" aria-label="Retrato ilustrado de un amigo">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#26324a"/>
+      <stop offset="1" stop-color="#131926"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="34%" r="62%">
+      <stop offset="0" stop-color="#ffb86b" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#ffb86b" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f2c09a"/>
+      <stop offset="1" stop-color="#d99a72"/>
+    </linearGradient>
+    <linearGradient id="skinShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d99a72" stop-opacity=".75"/>
+      <stop offset="1" stop-color="#c98763" stop-opacity=".1"/>
+    </linearGradient>
+    <linearGradient id="sweater" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#405273"/>
+      <stop offset="1" stop-color="#263149"/>
+    </linearGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#33261f"/>
+      <stop offset="1" stop-color="#201714"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="800" height="1000" rx="36" fill="url(#bg)"/>
+  <rect width="800" height="1000" rx="36" fill="url(#glow)"/>
+
+  <!-- Hombros -->
+  <path d="M 110 1000 C 120 816 244 724 400 724 C 556 724 680 816 690 1000 Z" fill="url(#sweater)"/>
+  <path d="M 110 1000 C 120 816 244 724 400 724 C 556 724 680 816 690 1000" fill="none" stroke="#5a6c90" stroke-width="3" opacity=".35"/>
+
+  <!-- Cuello -->
+  <path d="M 338 612 L 462 612 L 472 730 C 432 758 368 758 328 730 Z" fill="#d99a72"/>
+  <path d="M 338 612 L 462 612 L 462 690 C 420 712 380 712 338 690 Z" fill="url(#skinShade)" opacity=".65"/>
+
+  <!-- Orejas -->
+  <ellipse cx="222" cy="432" rx="38" ry="56" fill="#d99a72"/>
+  <ellipse cx="578" cy="432" rx="38" ry="56" fill="#d99a72"/>
+  <ellipse cx="222" cy="432" rx="19" ry="32" fill="#c98763" opacity=".55"/>
+  <ellipse cx="578" cy="432" rx="19" ry="32" fill="#c98763" opacity=".55"/>
+
+  <!-- Cabeza -->
+  <ellipse cx="400" cy="398" rx="176" ry="216" fill="url(#skin)"/>
+  <path d="M 224 398 C 224 520 306 614 400 614 C 494 614 576 520 576 398" fill="url(#skinShade)" opacity=".22"/>
+
+  <!-- Pelo -->
+  <path d="M 218 386 C 202 252 278 160 400 160 C 522 160 598 252 582 386 C 560 334 536 302 500 288 C 470 330 330 330 300 288 C 264 302 240 334 218 386 Z" fill="url(#hair)"/>
+  <path d="M 218 386 C 206 428 212 462 230 490 C 222 438 228 408 240 384 Z" fill="url(#hair)"/>
+  <path d="M 582 386 C 594 428 588 462 570 490 C 578 438 572 408 560 384 Z" fill="url(#hair)"/>
+  <path d="M 300 288 C 330 322 470 322 500 288 C 480 258 440 242 400 242 C 360 242 320 258 300 288 Z" fill="#3c2c24" opacity=".7"/>
+
+  <!-- Cejas -->
+  <path d="M 286 358 Q 328 332 372 354" fill="none" stroke="#3a2a24" stroke-width="12" stroke-linecap="round"/>
+  <path d="M 428 354 Q 472 332 514 358" fill="none" stroke="#3a2a24" stroke-width="12" stroke-linecap="round"/>
+
+  <!-- Ojos -->
+  <ellipse cx="330" cy="404" rx="43" ry="27" fill="#fffaf3"/>
+  <ellipse cx="470" cy="404" rx="43" ry="27" fill="#fffaf3"/>
+  <circle cx="334" cy="406" r="16" fill="#3a2a24"/>
+  <circle cx="466" cy="406" r="16" fill="#3a2a24"/>
+  <circle cx="339" cy="400" r="5" fill="#fff" opacity=".9"/>
+  <circle cx="471" cy="400" r="5" fill="#fff" opacity=".9"/>
+  <path d="M 292 392 Q 330 376 368 392" fill="none" stroke="#c98763" stroke-width="3" opacity=".45"/>
+  <path d="M 432 392 Q 470 376 508 392" fill="none" stroke="#c98763" stroke-width="3" opacity=".45"/>
+
+  <!-- Nariz -->
+  <path d="M 400 428 C 391 468 386 486 400 494 C 414 486 409 468 400 428 Z" fill="#c98763" opacity=".6"/>
+  <path d="M 386 490 Q 400 498 414 490" fill="none" stroke="#b97a58" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+
+  <!-- Mejillas -->
+  <ellipse cx="282" cy="486" rx="47" ry="25" fill="#e88f7d" opacity=".22"/>
+  <ellipse cx="518" cy="486" rx="47" ry="25" fill="#e88f7d" opacity=".22"/>
+
+  <!-- Boca cerrada (la capa animada la tapa) -->
+  <path d="M 358 522 Q 400 534 442 522" fill="none" stroke="#9c5b52" stroke-width="4" stroke-linecap="round"/>
+
+  <!-- Mentón -->
+  <path d="M 336 570 Q 400 606 464 570" fill="none" stroke="#c98763" stroke-width="4" stroke-linecap="round" opacity=".35"/>
+
+  <!-- Cuello de la remera -->
+  <path d="M 326 730 C 358 762 442 762 474 730" fill="none" stroke="#1a2334" stroke-width="9" opacity=".65"/>
+</svg>

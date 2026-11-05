@@ -1,0 +1,36 @@
+# Solo para probar el contenedor en tu máquina.
+# No usa Traefik ni la red proxy.
+services:
+  avatar:
+    build:
+      context: .
+    image: avatar:local
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4173"
+    volumes:
+      - ./assets:/app/assets:ro
+    ports:
+      - "4173:4173"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4173/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

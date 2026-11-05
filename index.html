@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b0d12">
+  <title>Avatar de mi amigo · Muestra escolar</title>
+  <meta name="description" content="Avatar con boca animada y voz clonada para una muestra escolar.">
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <script>
+    (() => {
+      const path = location.pathname;
+      document.documentElement.dataset.mode =
+        path.startsWith("/control") ? "control" :
+        path.startsWith("/local") ? "local" : "display";
+    })();
+  </script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <main class="stage" id="stage">
+      <div class="stage-glow" aria-hidden="true"></div>
+
+      <div class="avatar-wrap" id="avatarWrap">
+        <div class="avatar-bob">
+          <img id="face" src="assets/face.svg" alt="Retrato del amigo que da vida al avatar" draggable="false">
+          <div id="mouth" class="mouth" aria-hidden="true">
+            <div class="mouth-inner">
+              <div class="teeth"></div>
+              <div class="tongue"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="stage-caption" id="stageCaption">
+        <span class="live-dot" aria-hidden="true"></span>
+        <span id="caption">Listo para hablar</span>
+      </div>
+    </main>
+
+    <aside class="controls" aria-label="Controles del avatar">
+      <header class="brand">
+        <div class="brand-mark" aria-hidden="true">A</div>
+        <div class="brand-text">
+          <h1>Sandro de Americ IA</h1>
+          <p class="subtitle" id="subtitle">Muestra escolar</p>
+        </div>
+        <div class="top-actions">
+          <button id="fullscreenBtn" class="icon-btn" type="button" title="Pantalla completa" aria-label="Pantalla completa">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M8 3H5a2 2 0 0 0-2 2v3M21 8V5a2 2 0 0 0-2-2h-3M3 16v3a2 2 0 0 0 2 2h3M16 21h3a2 2 0 0 0 2-2v-3"/>
+            </svg>
+          </button>
+          <button id="calibrateBtn" class="icon-btn" type="button" title="Calibrar boca" aria-label="Calibrar boca">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3"/>
+              <path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.7 1.7 0 0 0 .34-1.87 1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34H9a1.7 1.7 0 0 0 1-1.56V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56 1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87V9a1.7 1.7 0 0 0 1.56 1H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.51 1Z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div id="providerBadge" class="badge">Voz de prueba · no clonada</div>
+      <div id="presenceNote" class="presence-note hidden"></div>
+
+      <section class="section">
+        <div class="section-head">
+          <h2>Frases</h2>
+          <span id="phraseCount" class="count">—</span>
+        </div>
+        <div id="phraseGrid" class="phrase-grid" aria-label="Frases del avatar"></div>
+      </section>
+
+      <section class="section free-mode">
+        <div class="section-head">
+          <h2>Modo libre</h2>
+          <span class="tag">texto</span>
+        </div>
+
+        <div class="mic-row" id="micRow">
+          <button id="micBtn" class="mic-btn" type="button" aria-pressed="false" title="Dictar por voz">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="9" y="2.5" width="6" height="11" rx="3"/>
+              <path d="M5 11a7 7 0 0 0 14 0M12 18v3M8 21h8"/>
+            </svg>
+            <span id="micLabel">Hablar</span>
+          </button>
+          <span id="micHint" class="mic-hint">Micrófono: dictado por voz o usá el teclado.</span>
+          <button id="stopBtn" class="stop-btn" type="button" title="Detener al avatar">Detener</button>
+        </div>
+
+        <div id="pendingBar" class="pending-bar hidden" role="status">
+          <span class="pending-label">Enviando:</span>
+          <span id="pendingText" class="pending-text"></span>
+          <button id="pendingCancel" class="pending-cancel" type="button">Cancelar</button>
+        </div>
+
+        <form id="sayForm" class="say-form">
+          <input id="sayInput" type="text" maxlength="280" placeholder="Escribí y apretá Enter..." autocomplete="off" enterkeyhint="send" aria-label="Texto para el avatar">
+          <button id="sayBtn" type="submit">Decir</button>
+        </form>
+        <p class="hint">Escribí y apretá Enter: el avatar lo dice y podés seguir escribiendo. Si el micrófono no está disponible, este es el fallback. Máximo 280 caracteres.</p>
+      </section>
+
+      <div id="status" class="status" role="status" aria-live="polite">Tocá una frase para empezar.</div>
+
+      <footer class="footer">Proyecto escolar · 2026 · Hecho con permiso</footer>
+    </aside>
+  </div>
+
+  <div id="calPanel" class="cal-panel hidden" role="dialog" aria-label="Calibrar boca">
+    <div class="cal-head">
+      <strong>Calibrar boca</strong>
+      <button id="calClose" class="icon-btn" type="button" aria-label="Cerrar calibración">×</button>
+    </div>
+    <p>Arrastrá la boca sobre la boca de la foto. Usá la rueda del mouse para agrandar o achicar.</p>
+    <div class="cal-row">
+      <label for="calX">X</label>
+      <input id="calX" type="range" min="0" max="100" step="0.1" value="53.2">
+    </div>
+    <div class="cal-row">
+      <label for="calY">Y</label>
+      <input id="calY" type="range" min="0" max="100" step="0.1" value="38.8">
+    </div>
+    <div class="cal-row">
+      <label for="calW">Ancho</label>
+      <input id="calW" type="range" min="2" max="40" step="0.1" value="12.9">
+    </div>
+    <div class="cal-row">
+      <label for="calH">Alto</label>
+      <input id="calH" type="range" min="1" max="30" step="0.1" value="2">
+    </div>
+    <div class="cal-row">
+      <label for="calRot">Rotación</label>
+      <input id="calRot" type="range" min="-20" max="20" step="0.1" value="-3.6">
+    </div>
+    <div class="cal-actions">
+      <button id="calReset" class="ghost-btn" type="button">Restablecer</button>
+      <button id="calSave" class="primary-btn" type="button">Guardar</button>
+    </div>
+  </div>
+
+  <div id="activateOverlay" class="activate-overlay hidden" role="dialog" aria-label="Activar pantalla">
+    <div class="activate-card">
+      <div class="activate-icon" aria-hidden="true">▶</div>
+      <strong>Pantalla lista</strong>
+      <p>Tocá una vez para habilitar el audio del avatar. Después podés controlarlo desde el celular.</p>
+      <button id="activateBtn" type="button">Activar pantalla</button>
+    </div>
+  </div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

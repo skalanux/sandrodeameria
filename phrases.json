@@ -1,0 +1,62 @@
+[
+  {
+    "id": "01",
+    "label": "Hola, soy un avatar",
+    "text": "Hola, soy un avatar. Esto que ven es mi cara y mi voz, pero no estoy acá."
+  },
+  {
+    "id": "02",
+    "label": "Cómo se hizo",
+    "text": "La cara salió de una foto mía. La voz la clonamos con unos minutos de audio, y después un programa mueve la boca al ritmo de lo que digo."
+  },
+  {
+    "id": "03",
+    "label": "Botones y modo libre",
+    "text": "Las frases de los botones ya están generadas con mi voz. En el modo libre, el sistema genera la voz en el momento y sincroniza los labios."
+  },
+  {
+    "id": "04",
+    "label": "La voz clonada",
+    "text": "Para clonar la voz alcanzó con audio mío hablando normal, sin música ni ruido de fondo."
+  },
+  {
+    "id": "05",
+    "label": "No piensa solo",
+    "text": "El avatar no piensa por su cuenta: dice lo que le pasamos. La magia está en la voz y en el movimiento de la boca."
+  },
+  {
+    "id": "06",
+    "label": "Por qué lo hicimos",
+    "text": "Lo armamos para la muestra de la escuela, para mostrar cómo la inteligencia artificial puede animar una imagen y hacerla hablar."
+  },
+  {
+    "id": "07",
+    "label": "Permiso y consentimiento",
+    "text": "Yo autoricé el uso de mi cara y mi voz. Sin permiso esto no se hace: son mis datos y es mi identidad."
+  },
+  {
+    "id": "08",
+    "label": "Probá una frase",
+    "text": "Si quieren probar, elijan una frase de la pantalla y el avatar la dice con mi voz."
+  },
+  {
+    "id": "09",
+    "label": "Modo libre",
+    "text": "También hay un modo libre: escriben y el avatar lo dice con mi tono."
+  },
+  {
+    "id": "10",
+    "label": "Privacidad",
+    "text": "En esta demo no guardamos lo que prueban. Es un proyecto escolar y no usamos datos de nadie más."
+  },
+  {
+    "id": "11",
+    "label": "El de la pantalla",
+    "text": "Si me comparan con el de la pantalla, la voz suena igual. La diferencia es que este no se cansa."
+  },
+  {
+    "id": "12",
+    "label": "Gracias",
+    "text": "Gracias por pasar. Si les gustó, prueben otra frase. Total, yo ya estoy en todas las pantallas."
+  }
+]

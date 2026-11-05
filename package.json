@@ -1,0 +1,17 @@
+{
+  "name": "avatar-voz-clonada",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Avatar 2D con boca animada y voz clonada para una muestra escolar",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "standalone": "bash scripts/standalone.sh",
+    "deploy": "bash scripts/deploy.sh",
+    "generate": "node scripts/generate-audio.mjs",
+    "generate:demo": "VOICE_PROVIDER=demo node scripts/generate-audio.mjs",
+    "clone": "node scripts/clone-voice.mjs",
+    "delete-voice": "node scripts/delete-voice.mjs"
+  }
+}

@@ -1,0 +1,53 @@
+services:
+  avatar:
+    build:
+      context: .
+    image: avatar:${IMAGE_TAG:-local}
+    restart: unless-stopped
+    init: true
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: "4173"
+    volumes:
+      # La foto y los audios viven en la VPS, fuera de la imagen.
+      - ./assets:/app/assets:ro
+    expose:
+      - "4173"
+    networks:
+      - proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=proxy"
+      - "traefik.http.routers.avatar.rule=Host(`${SERVER_HOST:-localhost}`)"
+      - "traefik.http.routers.avatar.entrypoints=websecure"
+      - "traefik.http.routers.avatar.tls=true"
+      - "traefik.http.routers.avatar.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.avatar.middlewares=avatar-auth"
+      - "traefik.http.services.avatar.loadbalancer.server.port=4173"
+      - "traefik.http.middlewares.avatar-auth.basicauth.users=${BASIC_AUTH_USERS:-}"
+      - "traefik.http.services.avatar.loadbalancer.serverstransport=avatar-sse"
+      - "traefik.http.serversTransports.avatar-sse.flushInterval=100ms"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:4173/api/health').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 5s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  proxy:
+    external: true
