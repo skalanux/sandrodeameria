@@ -258,12 +258,11 @@ Los labels del compose son:
 - "traefik.http.services.avatar.loadbalancer.server.port=4173"
 
 - "traefik.http.middlewares.avatar-auth.basicauth.users=${BASIC_AUTH_USERS}"
-
-- "traefik.http.services.avatar.loadbalancer.serverstransport=avatar-sse"
-- "traefik.http.serversTransports.avatar-sse.flushInterval=100ms"
 ```
 
-No hay router HTTP porque el redirect global ya manda todo a HTTPS. El `serversTransport` es necesario para que `/api/events` (SSE) no se bufferice.
+No hay router HTTP porque el redirect global ya manda todo a HTTPS.
+
+La app ya manda `X-Accel-Buffering: no` en `/api/events`. No agregues un middleware de compresión ni de buffering al router del avatar, porque puede demorar los eventos de SSE.
 
 ## Verificación en producción
 
@@ -334,4 +333,4 @@ ssh deploy@TU_VPS 'cd /opt/avatar && docker compose ps && docker compose logs --
 **SSE se reconecta**
 
 - Es normal si el contenedor se reinició.
-- Si pasa seguido, revisá que el `serversTransport` de `avatar-sse` esté aplicado y que no haya un middleware de compresión en el router.
+- Revisá que no haya un middleware de compresión o buffering en el router del avatar. La app ya manda `X-Accel-Buffering: no`.

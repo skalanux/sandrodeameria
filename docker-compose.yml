@@ -28,8 +28,6 @@ services:
       - "traefik.http.routers.avatar.middlewares=avatar-auth"
       - "traefik.http.services.avatar.loadbalancer.server.port=4173"
       - "traefik.http.middlewares.avatar-auth.basicauth.users=${BASIC_AUTH_USERS:-}"
-      - "traefik.http.services.avatar.loadbalancer.serverstransport=avatar-sse"
-      - "traefik.http.serversTransports.avatar-sse.flushInterval=100ms"
     healthcheck:
       test:
         [
