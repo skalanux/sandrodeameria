@@ -11,7 +11,10 @@ const IS_LOCAL = MODE === "local";
 
 document.documentElement.dataset.mode = MODE;
 
-const DEFAULT_CAL = { x: 53.2, y: 38.75, w: 12.9, h: 1.95, rot: -3.6 };
+//const DEFAULT_CAL = { x: 53.2, y: 38.75, w: 12.9, h: 1.95, rot: -3.6 };
+//const DEFAULT_CAL = { x: 53.2, y: 38.75, w: 12.9, h: 1.95, rot: -3.6 };
+
+const DEFAULT_CAL = { x: 50.4, y: 37.95, w: 7.5, h: 1.95, rot: -4.1 };
 const CAL_KEY = "avatar-mouth-calibration-v2";
 const FACE_CANDIDATES = ["assets/face.jpg", "assets/face.png", "assets/face.webp"];
 
@@ -237,6 +240,7 @@ function ensureAudio() {
 }
 
 function setMouthOpen(value) {
+  console.log('abrir boca');
   state.open = clamp(value, 0, 1);
   els.mouth.style.setProperty("--open", state.open.toFixed(3));
 }
@@ -1097,7 +1101,9 @@ function shortLabel(text) {
 }
 
 function clamp(value, min, max) {
-  return Math.min(max, Math.max(min, value));
+  var valor = Math.min(max, Math.max(min, value));
+  console.log(valor * 2);
+  return valor ;
 }
 
 /* ---------- Inicio ---------- */
