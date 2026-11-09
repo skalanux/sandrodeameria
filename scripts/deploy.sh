@@ -43,7 +43,6 @@ rsync -az --delete \
   --exclude 'uv.lock' \
   --exclude 'assets/cache/' \
   --exclude 'assets/face.jpg' \
-  --exclude 'assets/face.mp4' \
   ./ "${REMOTE}:${DEPLOY_PATH}/"
 
 echo "→ Build y deploy (${IMAGE_TAG})"

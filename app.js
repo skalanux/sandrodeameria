@@ -18,7 +18,7 @@ const DEFAULT_CAL = { x: 50.4, y: 37.95, w: 7.5, h: 1.95, rot: -4.1 };
 const CAL_KEY = "avatar-mouth-calibration-v2";
 const VISUAL_KEY = "avatar-visual-mode";
 const FACE_VIDEO = "assets/face.mp4";
-const VIDEO_START_TIME = 2; // segundos del video donde arranca cada frase
+const VIDEO_START_TIME = 1; // segundos del video donde arranca cada frase
 const FACE_CANDIDATES = ["assets/face.jpg", "assets/face.png", "assets/face.webp"];
 
 const els = {

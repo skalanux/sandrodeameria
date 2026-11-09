@@ -77,10 +77,10 @@ Notas:
 
 ## Cara o video
 
-Si existe `assets/face.mp4`, aparece el botón **Visual** en `/control` y `/local`:
+El video está en `assets/face.mp4` y versionado en el repo. Si existe, aparece el botón **Visual** en `/control` y `/local`:
 
 - **Cara**: usa la foto, la boca CSS y la animación de respiración.
-- **Video**: muestra `face.mp4` con su propia boca animada. El video va muteado y se reproduce solo cuando el avatar habla. Arranca en el segundo `2` (`VIDEO_START_TIME` en `app.js`) y, si se termina antes que el audio, vuelve a ese segundo. En este modo se desactivan la boca CSS y el movimiento por CSS.
+- **Video**: muestra `face.mp4` con su propia boca animada. El video va muteado y se reproduce solo cuando el avatar habla. Arranca en el segundo configurado en `VIDEO_START_TIME` (`app.js`) y, si se termina antes que el audio, vuelve a ese segundo. En este modo se desactivan la boca CSS y el movimiento por CSS.
 
 El video no está en git; se sube a la VPS junto con la foto.
 
@@ -189,18 +189,17 @@ docker run --rm httpd:alpine htpasswd -nbB usuario 'tu-clave'
 
 En `.env`, el hash va **entre comillas simples** para que los `$` no se interpolen.
 
-### 3. Subir la foto o el video
+### 3. Subir la foto
 
-Subí el archivo que uses. Podés tener los dos:
+El video ya viene en el repo. La foto no:
 
 ```bash
 rsync -av assets/face.jpg deploy@TU_VPS:/opt/avatar/assets/
-rsync -av assets/face.mp4 deploy@TU_VPS:/opt/avatar/assets/
 ```
 
-La foto y el video no están en git y no entran en la imagen. Quedan montados read-only desde `/opt/avatar/assets`.
+La foto no está en git; el video sí. Ninguno de los dos entra en la imagen: quedan montados read-only desde `/opt/avatar/assets`.
 
-Si los cambiás, volvé a subirlos. Como se monta la carpeta completa, no hace falta rebuildear.
+Si cambiás la foto, volvé a subirla. Si cambiás el video, commitealo y actualizá el repo en la VPS; no hace falta rebuildear porque se monta la carpeta completa.
 
 ### 4. Configurar el deploy local
 
@@ -227,7 +226,7 @@ npm run deploy
 
 El script:
 
-1. Sincroniza el código con `rsync` (sin tocar `.env`, `assets/face.jpg` ni `assets/face.mp4`).
+1. Sincroniza el código con `rsync` (sin tocar `.env` ni `assets/face.jpg`).
 2. Entra por SSH a `/opt/avatar`.
 3. Buildea `avatar:<sha>` y ejecuta `docker compose up -d --wait`.
 4. Verifica que `https://.../` responda `401` por basic auth.
@@ -248,12 +247,13 @@ ssh deploy@TU_VPS 'cd /opt/avatar && IMAGE_TAG=<sha-viejo> docker compose up -d 
 
 ### Actualizar la foto o el video
 
+La foto se sube aparte:
+
 ```bash
 rsync -av assets/face.jpg deploy@TU_VPS:/opt/avatar/assets/
-rsync -av assets/face.mp4 deploy@TU_VPS:/opt/avatar/assets/
 ```
 
-No hace falta rebuildear ni reiniciar: el contenedor monta la carpeta `assets/`.
+El video se actualiza con el repo (commit + `git pull` en la VPS). No hace falta rebuildear ni reiniciar: el contenedor monta la carpeta `assets/`.
 
 ## Traefik
 
@@ -291,7 +291,7 @@ La app ya manda `X-Accel-Buffering: no` en `/api/events`. No agregues un middlew
 ## Seguridad
 
 - `.env` no está en git, no está en la imagen y no se sincera por rsync.
-- La foto y el video tampoco están en git ni en la imagen.
+- La foto no está en git ni en la imagen. El video sí está versionado en el repo público.
 - El contenedor no publica puertos; solo Traefik lo alcanza por la red `proxy`.
 - La API key de Fish queda en el entorno del contenedor. Cualquiera con root o acceso al grupo `docker` en la VPS puede verla; es el límite de confianza de una VPS dedicada.
 - **No escales a dos réplicas**: el estado de displays, control y display primario está en memoria. Dos contenedores romperían la lógica de audio único.
@@ -306,7 +306,7 @@ styles.css                Estilos
 lib/voice.js              Adaptador de Fish Audio / demo
 assets/audio/             Los 12 MP3
 assets/face.jpg           Foto privada (no versionada)
-assets/face.mp4           Video privado (no versionado)
+assets/face.mp4           Video del avatar (versionado)
 Dockerfile                Imagen Node sin Whisper ni Python
 docker-compose.yml        Producción con Traefik
 docker-compose.local.yml  Prueba local del contenedor
