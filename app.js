@@ -352,18 +352,32 @@ function updateVisualButton() {
       : "Cambiar a video";
 }
 
+function seekFaceVideoToStart() {
+  if (!els.faceVideo) return;
+
+  const seek = () => {
+    try {
+      const duration = Number.isFinite(els.faceVideo.duration)
+        ? els.faceVideo.duration
+        : VIDEO_START_TIME;
+      const maxStart = Math.max(0, duration - 0.1);
+      els.faceVideo.currentTime = Math.min(VIDEO_START_TIME, maxStart);
+    } catch {
+      /* el video todavía no tiene metadata */
+    }
+  };
+
+  if (els.faceVideo.readyState >= 1) {
+    seek();
+  } else {
+    els.faceVideo.addEventListener("loadedmetadata", seek, { once: true });
+  }
+}
+
 function startFaceVideoAtOffset() {
   if (!els.faceVideo) return;
 
-  try {
-    const duration = Number.isFinite(els.faceVideo.duration)
-      ? els.faceVideo.duration
-      : VIDEO_START_TIME;
-    const maxStart = Math.max(0, duration - 0.1);
-    els.faceVideo.currentTime = Math.min(VIDEO_START_TIME, maxStart);
-  } catch {
-    /* el video todavía no tiene metadata */
-  }
+  seekFaceVideoToStart();
 
   try {
     const promise = els.faceVideo.play();
@@ -402,11 +416,7 @@ function stopFaceVideo() {
   if (!els.faceVideo) return;
 
   els.faceVideo.pause();
-  try {
-    els.faceVideo.currentTime = 0;
-  } catch {
-    /* el video todavía no cargó */
-  }
+  seekFaceVideoToStart();
 }
 
 function setFaceMode(mode, { persist = true, announce = true } = {}) {
@@ -431,6 +441,7 @@ function setFaceMode(mode, { persist = true, announce = true } = {}) {
   if (video) {
     if (document.body.classList.contains("calibrating")) setCalibrating(false);
     if (state.speaking) playFaceVideo();
+    else stopFaceVideo();
   } else {
     stopFaceVideo();
   }
