@@ -77,7 +77,7 @@ Notas:
 
 ## Cara o video
 
-El video está en `assets/face.mp4` y versionado en el repo. Si existe, aparece el botón **Visual** en `/control` y `/local`:
+El video está en `assets/face.mp4` y versionado en el repo. Si existe, arranca por defecto en **Video** y aparece el botón **Visual** en `/control` y `/local`:
 
 - **Cara**: usa la foto, la boca CSS y la animación de respiración.
 - **Video**: muestra `face.mp4` con su propia boca animada. El video va muteado y se reproduce solo cuando el avatar habla. Arranca en el segundo configurado en `VIDEO_START_TIME` (`app.js`) y, si se termina antes que el audio, vuelve a ese segundo. En este modo se desactivan la boca CSS y el movimiento por CSS.

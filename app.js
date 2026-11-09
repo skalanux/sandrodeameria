@@ -16,7 +16,7 @@ document.documentElement.dataset.mode = MODE;
 
 const DEFAULT_CAL = { x: 50.4, y: 37.95, w: 7.5, h: 1.95, rot: -4.1 };
 const CAL_KEY = "avatar-mouth-calibration-v2";
-const VISUAL_KEY = "avatar-visual-mode";
+const VISUAL_KEY = "avatar-visual-mode-v2";
 const FACE_VIDEO = "assets/face.mp4";
 const VIDEO_START_TIME = 1; // segundos del video donde arranca cada frase
 const FACE_CANDIDATES = ["assets/face.jpg", "assets/face.png", "assets/face.webp"];
@@ -78,6 +78,7 @@ const state = {
   ttsAbort: null,
   faceMode: "face",
   hasVideo: false,
+  visualStatusSeen: false,
   displays: 0,
   controls: 0,
   audioArmed: false,
@@ -796,6 +797,7 @@ function applyRemoteStatus(data) {
   state.remoteStatusSeen = true;
 
   if (data.visual === "face" || data.visual === "video") {
+    state.visualStatusSeen = true;
     state.faceMode = data.visual;
     updateVisualButton();
   }
@@ -1232,6 +1234,9 @@ async function assetExists(src) {
 
 async function detectVideo() {
   state.hasVideo = await assetExists(FACE_VIDEO);
+  if (state.hasVideo && !state.visualStatusSeen) {
+    state.faceMode = "video";
+  }
   updateVisualButton();
 }
 
@@ -1266,7 +1271,9 @@ async function loadFace() {
     /* localStorage puede estar bloqueado */
   }
 
-  setFaceMode(stored === "video" && state.hasVideo ? "video" : "face", {
+  const initialMode =
+    state.hasVideo && stored !== "face" ? "video" : "face";
+  setFaceMode(initialMode, {
     persist: false,
     announce: false,
   });
