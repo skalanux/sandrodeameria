@@ -80,7 +80,7 @@ Notas:
 Si existe `assets/face.mp4`, aparece el botón **Visual** en `/control` y `/local`:
 
 - **Cara**: usa la foto, la boca CSS y la animación de respiración.
-- **Video**: muestra `face.mp4` con su propia boca animada. El video va muteado, en loop y se reproduce solo cuando el avatar habla. En este modo se desactivan la boca CSS y el movimiento por CSS.
+- **Video**: muestra `face.mp4` con su propia boca animada. El video va muteado y se reproduce solo cuando el avatar habla. Arranca en el segundo `2` (`VIDEO_START_TIME` en `app.js`) y, si se termina antes que el audio, vuelve a ese segundo. En este modo se desactivan la boca CSS y el movimiento por CSS.
 
 El video no está en git; se sube a la VPS junto con la foto.
 

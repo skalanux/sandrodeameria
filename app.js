@@ -18,6 +18,7 @@ const DEFAULT_CAL = { x: 50.4, y: 37.95, w: 7.5, h: 1.95, rot: -4.1 };
 const CAL_KEY = "avatar-mouth-calibration-v2";
 const VISUAL_KEY = "avatar-visual-mode";
 const FACE_VIDEO = "assets/face.mp4";
+const VIDEO_START_TIME = 2; // segundos del video donde arranca cada frase
 const FACE_CANDIDATES = ["assets/face.jpg", "assets/face.png", "assets/face.webp"];
 
 const els = {
@@ -351,6 +352,27 @@ function updateVisualButton() {
       : "Cambiar a video";
 }
 
+function startFaceVideoAtOffset() {
+  if (!els.faceVideo) return;
+
+  try {
+    const duration = Number.isFinite(els.faceVideo.duration)
+      ? els.faceVideo.duration
+      : VIDEO_START_TIME;
+    const maxStart = Math.max(0, duration - 0.1);
+    els.faceVideo.currentTime = Math.min(VIDEO_START_TIME, maxStart);
+  } catch {
+    /* el video todavía no tiene metadata */
+  }
+
+  try {
+    const promise = els.faceVideo.play();
+    promise?.catch(() => {});
+  } catch {
+    /* si el navegador lo bloquea, el audio sigue igual */
+  }
+}
+
 function playFaceVideo() {
   if (
     state.faceMode !== "video" ||
@@ -360,13 +382,20 @@ function playFaceVideo() {
     return;
   }
 
-  try {
-    els.faceVideo.currentTime = 0;
-    const promise = els.faceVideo.play();
-    promise?.catch(() => {});
-  } catch {
-    /* si el navegador lo bloquea, el audio sigue igual */
+  if (els.faceVideo.readyState >= 1) {
+    startFaceVideoAtOffset();
+  } else {
+    els.faceVideo.addEventListener(
+      "loadedmetadata",
+      startFaceVideoAtOffset,
+      { once: true }
+    );
   }
+}
+
+function handleFaceVideoEnded() {
+  if (state.faceMode !== "video" || !state.speaking) return;
+  startFaceVideoAtOffset();
 }
 
 function stopFaceVideo() {
@@ -1201,6 +1230,7 @@ async function loadFace() {
   if (state.hasVideo) {
     els.faceVideo.src = FACE_VIDEO;
     els.faceVideo.load();
+    els.faceVideo.addEventListener("ended", handleFaceVideoEnded);
     els.faceVideo.addEventListener(
       "error",
       () => {
