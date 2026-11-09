@@ -31,31 +31,26 @@
   },
   {
     "id": "07",
-    "label": "Permiso y consentimiento",
-    "text": "Yo autoricé el uso de mi cara y mi voz. Sin permiso esto no se hace: son mis datos y es mi identidad."
-  },
-  {
-    "id": "08",
     "label": "Probá una frase",
     "text": "Si quieren probar, elijan una frase de la pantalla y el avatar la dice con mi voz."
   },
   {
-    "id": "09",
+    "id": "08",
     "label": "Modo libre",
     "text": "También hay un modo libre: escriben y el avatar lo dice con mi tono."
   },
   {
-    "id": "10",
+    "id": "09",
     "label": "Privacidad",
     "text": "En esta demo no guardamos lo que prueban. Es un proyecto escolar y no usamos datos de nadie más."
   },
   {
-    "id": "11",
+    "id": "10",
     "label": "El de la pantalla",
     "text": "Si me comparan con el de la pantalla, la voz suena igual. La diferencia es que este no se cansa."
   },
   {
-    "id": "12",
+    "id": "11",
     "label": "Gracias",
     "text": "Gracias por pasar. Si les gustó, prueben otra frase. Total, yo ya estoy en todas las pantallas."
   }
