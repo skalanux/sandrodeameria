@@ -43,6 +43,7 @@ rsync -az --delete \
   --exclude 'uv.lock' \
   --exclude 'assets/cache/' \
   --exclude 'assets/face.jpg' \
+  --exclude 'assets/face.mp4' \
   ./ "${REMOTE}:${DEPLOY_PATH}/"
 
 echo "→ Build y deploy (${IMAGE_TAG})"
@@ -50,7 +51,7 @@ ssh "$REMOTE" "cd '${DEPLOY_PATH}' && \
   test -f .env && \
   grep -Eq '^[[:space:]]*SERVER_HOST[[:space:]]*=[[:space:]]*[^[:space:]]' .env && \
   grep -Eq '^[[:space:]]*BASIC_AUTH_USERS[[:space:]]*=[[:space:]]*[^[:space:]]' .env && \
-  test -s assets/face.jpg && \
+  (test -s assets/face.jpg || test -s assets/face.mp4) && \
   IMAGE_TAG='${IMAGE_TAG}' docker compose build && \
   IMAGE_TAG='${IMAGE_TAG}' docker compose up -d --wait"
 

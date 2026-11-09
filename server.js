@@ -22,7 +22,7 @@ try {
 const SPA_ROUTES = new Set(["/control", "/local", "/display"]);
 const clients = new Set();
 let nextClientId = 1;
-let lastStatus = { state: "idle", label: "Listo", error: false };
+let lastStatus = { state: "idle", label: "Listo", error: false, visual: "face" };
 
 const MIME = {
   ".html": "text/html; charset=utf-8",
@@ -39,6 +39,8 @@ const MIME = {
   ".mp3": "audio/mpeg",
   ".wav": "audio/wav",
   ".ogg": "audio/ogg",
+  ".mp4": "video/mp4",
+  ".webm": "video/webm",
   ".ico": "image/x-icon",
   ".woff2": "font/woff2",
   ".txt": "text/plain; charset=utf-8",
@@ -214,6 +216,10 @@ function normalizeCommand(body) {
     return { type: "text", text };
   }
 
+  if (body.type === "visual" && (body.mode === "face" || body.mode === "video")) {
+    return { type: "visual", mode: body.mode };
+  }
+
   if (body.type === "stop") return { type: "stop" };
   return null;
 }
@@ -226,7 +232,14 @@ async function handleCommand(req, res) {
       sendJson(res, 400, { error: "Comando inválido." });
       return;
     }
-    const delivered = broadcastCommand(command);
+    const delivered =
+      command.type === "visual"
+        ? broadcast("command", command, "display")
+        : broadcastCommand(command);
+    if (command.type === "visual") {
+      lastStatus = { ...lastStatus, visual: command.mode };
+      broadcast("status", lastStatus, "control");
+    }
     sendJson(res, 200, { ok: true, delivered });
   } catch (error) {
     sendJson(res, 400, { error: error.message || "Comando inválido." });
@@ -241,7 +254,11 @@ async function handleStatus(req, res) {
       : "idle";
     const label = String(body.label || "").slice(0, 160);
     const error = Boolean(body.error);
-    lastStatus = { state, label, error };
+    const visual =
+      body.visual === "face" || body.visual === "video"
+        ? body.visual
+        : lastStatus.visual;
+    lastStatus = { state, label, error, visual };
     broadcast("status", lastStatus, "control");
     sendJson(res, 200, { ok: true });
   } catch (error) {
@@ -256,9 +273,50 @@ async function serveFile(filePath, req, res) {
   }
 
   const ext = path.extname(filePath).toLowerCase();
+  const contentType = MIME[ext] || "application/octet-stream";
+  const range = req.headers.range;
+
+  if (range && /^bytes=/.test(range)) {
+    const [startValue, endValue] = range.replace(/^bytes=/, "").split("-");
+    const start = Number.parseInt(startValue, 10);
+    const end = endValue ? Number.parseInt(endValue, 10) : info.size - 1;
+
+    if (
+      !Number.isFinite(start) ||
+      !Number.isFinite(end) ||
+      start < 0 ||
+      end < start ||
+      start >= info.size
+    ) {
+      res.writeHead(416, {
+        "Content-Range": `bytes */${info.size}`,
+        "Accept-Ranges": "bytes",
+      });
+      res.end();
+      return;
+    }
+
+    const safeEnd = Math.min(end, info.size - 1);
+    res.writeHead(206, {
+      "Content-Type": contentType,
+      "Content-Length": safeEnd - start + 1,
+      "Content-Range": `bytes ${start}-${safeEnd}/${info.size}`,
+      "Accept-Ranges": "bytes",
+      "Cache-Control": "no-store",
+    });
+
+    if (req.method === "HEAD") {
+      res.end();
+      return;
+    }
+    createReadStream(filePath, { start, end: safeEnd }).pipe(res);
+    return;
+  }
+
   res.writeHead(200, {
-    "Content-Type": MIME[ext] || "application/octet-stream",
+    "Content-Type": contentType,
     "Content-Length": info.size,
+    "Accept-Ranges": "bytes",
     "Cache-Control": "no-store",
   });
 

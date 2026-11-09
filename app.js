@@ -16,12 +16,17 @@ document.documentElement.dataset.mode = MODE;
 
 const DEFAULT_CAL = { x: 50.4, y: 37.95, w: 7.5, h: 1.95, rot: -4.1 };
 const CAL_KEY = "avatar-mouth-calibration-v2";
+const VISUAL_KEY = "avatar-visual-mode";
+const FACE_VIDEO = "assets/face.mp4";
 const FACE_CANDIDATES = ["assets/face.jpg", "assets/face.png", "assets/face.webp"];
 
 const els = {
   face: $("#face"),
+  faceVideo: $("#faceVideo"),
   avatarWrap: $("#avatarWrap"),
   mouth: $("#mouth"),
+  visualBtn: $("#visualBtn"),
+  visualLabel: $("#visualLabel"),
   phraseGrid: $("#phraseGrid"),
   phraseCount: $("#phraseCount"),
   sayForm: $("#sayForm"),
@@ -70,6 +75,8 @@ const state = {
   reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)").matches,
   ttsToken: 0,
   ttsAbort: null,
+  faceMode: "face",
+  hasVideo: false,
   displays: 0,
   controls: 0,
   audioArmed: false,
@@ -240,7 +247,6 @@ function ensureAudio() {
 }
 
 function setMouthOpen(value) {
-  console.log('abrir boca');
   state.open = clamp(value, 0, 1);
   els.mouth.style.setProperty("--open", state.open.toFixed(3));
 }
@@ -254,6 +260,7 @@ function idleCaption() {
 }
 
 function stopPlayback() {
+  stopFaceVideo();
   cancelAnimationFrame(state.raf);
   state.raf = 0;
 
@@ -328,6 +335,85 @@ function startMouthLoop() {
   state.raf = requestAnimationFrame(frame);
 }
 
+function updateVisualButton() {
+  if (!els.visualBtn) return;
+
+  const video = state.faceMode === "video";
+  els.visualLabel.textContent = video ? "Video" : "Cara";
+  els.visualBtn.dataset.mode = video ? "video" : "face";
+  els.visualBtn.setAttribute("aria-pressed", video ? "true" : "false");
+  els.visualBtn.disabled =
+    !state.hasVideo || (IS_CONTROL && state.displays === 0);
+  els.visualBtn.title = !state.hasVideo
+    ? "No hay video disponible"
+    : video
+      ? "Cambiar a cara"
+      : "Cambiar a video";
+}
+
+function playFaceVideo() {
+  if (
+    state.faceMode !== "video" ||
+    !state.hasVideo ||
+    !els.faceVideo
+  ) {
+    return;
+  }
+
+  try {
+    els.faceVideo.currentTime = 0;
+    const promise = els.faceVideo.play();
+    promise?.catch(() => {});
+  } catch {
+    /* si el navegador lo bloquea, el audio sigue igual */
+  }
+}
+
+function stopFaceVideo() {
+  if (!els.faceVideo) return;
+
+  els.faceVideo.pause();
+  try {
+    els.faceVideo.currentTime = 0;
+  } catch {
+    /* el video todavía no cargó */
+  }
+}
+
+function setFaceMode(mode, { persist = true, announce = true } = {}) {
+  if (mode === "video" && !state.hasVideo) mode = "face";
+  state.faceMode = mode;
+
+  const video = mode === "video";
+  els.face?.classList.toggle("hidden", video);
+  els.faceVideo?.classList.toggle("hidden", !video);
+  document.body.classList.toggle("video-mode", video);
+
+  if (persist) {
+    try {
+      localStorage.setItem(VISUAL_KEY, mode);
+    } catch {
+      /* localStorage puede estar bloqueado */
+    }
+  }
+
+  updateVisualButton();
+
+  if (video) {
+    if (document.body.classList.contains("calibrating")) setCalibrating(false);
+    if (state.speaking) playFaceVideo();
+  } else {
+    stopFaceVideo();
+  }
+
+  if (IS_DISPLAY && state.isPrimary && announce) {
+    notifyStatus(
+      state.speaking ? "speaking" : "idle",
+      state.speaking ? "" : idleCaption()
+    );
+  }
+}
+
 async function playUrl(url, { label = "", button = null, objectUrl = null } = {}) {
   stopPlayback();
   ensureAudio();
@@ -380,6 +466,7 @@ async function playUrl(url, { label = "", button = null, objectUrl = null } = {}
   }
 
   notifyStatus("speaking", label);
+  playFaceVideo();
   startMouthLoop();
 }
 
@@ -428,6 +515,7 @@ function setControlsEnabled(enabled) {
   els.sayBtn.disabled = !enabled;
   els.stopBtn.disabled = !enabled;
   updateMicAvailability();
+  updateVisualButton();
 }
 
 async function playPhrase(phrase, button) {
@@ -667,6 +755,11 @@ function applyRemoteStatus(data) {
   if (!IS_CONTROL) return;
   state.remoteStatusSeen = true;
 
+  if (data.visual === "face" || data.visual === "video") {
+    state.faceMode = data.visual;
+    updateVisualButton();
+  }
+
   if (data.state === "speaking") {
     setStatus(data.label ? `Hablando: ${shortLabel(data.label)}` : "Hablando...");
   } else if (data.state === "generating") {
@@ -684,7 +777,12 @@ function notifyStatus(status, label = "", error = false) {
   fetch("/api/status", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ state: status, label: shortLabel(label), error }),
+    body: JSON.stringify({
+      state: status,
+      label: shortLabel(label),
+      error,
+      visual: state.faceMode,
+    }),
     keepalive: true,
   }).catch(() => {});
 }
@@ -704,6 +802,11 @@ function handleRemoteCommand(command) {
 
   if (command.type === "text") {
     playText(command.text);
+    return;
+  }
+
+  if (command.type === "visual") {
+    setFaceMode(command.mode);
     return;
   }
 
@@ -1011,6 +1114,30 @@ function bindMic() {
   updateMicAvailability();
 }
 
+function bindVisual() {
+  if (!els.visualBtn) return;
+
+  els.visualBtn.addEventListener("click", () => {
+    if (els.visualBtn.disabled) return;
+
+    const previous = state.faceMode;
+    const next = previous === "video" ? "face" : "video";
+
+    if (IS_CONTROL) {
+      state.faceMode = next;
+      updateVisualButton();
+      sendCommand({ type: "visual", mode: next }).catch(() => {
+        state.faceMode = previous;
+        updateVisualButton();
+      });
+    } else {
+      setFaceMode(next);
+    }
+  });
+
+  updateVisualButton();
+}
+
 /* ---------- Pantalla ---------- */
 
 function setupDisplayActivation() {
@@ -1054,18 +1181,54 @@ function setupDisplayActivation() {
 
 /* ---------- Entorno ---------- */
 
+async function assetExists(src) {
+  try {
+    const response = await fetch(src, { method: "HEAD", cache: "no-store" });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function detectVideo() {
+  state.hasVideo = await assetExists(FACE_VIDEO);
+  updateVisualButton();
+}
+
 async function loadFace() {
+  state.hasVideo = await assetExists(FACE_VIDEO);
+
+  if (state.hasVideo) {
+    els.faceVideo.src = FACE_VIDEO;
+    els.faceVideo.load();
+    els.faceVideo.addEventListener(
+      "error",
+      () => {
+        state.hasVideo = false;
+        setFaceMode("face", { persist: false, announce: true });
+      },
+      { once: true }
+    );
+  }
+
   for (const src of FACE_CANDIDATES) {
-    try {
-      const response = await fetch(src, { method: "HEAD", cache: "no-store" });
-      if (response.ok) {
-        els.face.src = src;
-        return;
-      }
-    } catch {
-      /* seguimos con el placeholder */
+    if (await assetExists(src)) {
+      els.face.src = src;
+      break;
     }
   }
+
+  let stored = null;
+  try {
+    stored = localStorage.getItem(VISUAL_KEY);
+  } catch {
+    /* localStorage puede estar bloqueado */
+  }
+
+  setFaceMode(stored === "video" && state.hasVideo ? "video" : "face", {
+    persist: false,
+    announce: false,
+  });
 }
 
 async function loadProvider() {
@@ -1101,9 +1264,7 @@ function shortLabel(text) {
 }
 
 function clamp(value, min, max) {
-  var valor = Math.min(max, Math.max(min, value));
-  console.log(valor * 2);
-  return valor ;
+  return Math.min(max, Math.max(min, value));
 }
 
 /* ---------- Inicio ---------- */
@@ -1158,6 +1319,8 @@ async function init() {
     setStatus("Conectando con la pantalla...");
     bindSayForm();
     bindMic();
+    bindVisual();
+    detectVideo();
     loadProvider();
 
     try {
@@ -1179,7 +1342,8 @@ async function init() {
 
   applyCalibration({ persist: false });
   if (IS_LOCAL) bindCalibration();
-  loadFace();
+  await loadFace();
+  if (IS_LOCAL) bindVisual();
   loadProvider();
 
   try {

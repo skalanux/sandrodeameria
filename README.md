@@ -75,6 +75,15 @@ Notas:
 - En la pantalla hay que tocar una vez **Activar pantalla** para habilitar el audio del navegador.
 - La Web Speech API manda el audio al servicio de dictado del navegador. No se graba ni se sube al servidor de la app.
 
+## Cara o video
+
+Si existe `assets/face.mp4`, aparece el botón **Visual** en `/control` y `/local`:
+
+- **Cara**: usa la foto, la boca CSS y la animación de respiración.
+- **Video**: muestra `face.mp4` con su propia boca animada. El video va muteado, en loop y se reproduce solo cuando el avatar habla. En este modo se desactivan la boca CSS y el movimiento por CSS.
+
+El video no está en git; se sube a la VPS junto con la foto.
+
 ## Voz y audios
 
 Los 12 audios están en `assets/audio/01.mp3` … `12.mp3` y se versionan en git.
@@ -180,15 +189,18 @@ docker run --rm httpd:alpine htpasswd -nbB usuario 'tu-clave'
 
 En `.env`, el hash va **entre comillas simples** para que los `$` no se interpolen.
 
-### 3. Subir la foto
+### 3. Subir la foto o el video
+
+Subí el archivo que uses. Podés tener los dos:
 
 ```bash
 rsync -av assets/face.jpg deploy@TU_VPS:/opt/avatar/assets/
+rsync -av assets/face.mp4 deploy@TU_VPS:/opt/avatar/assets/
 ```
 
-La foto no está en git y no entra en la imagen. Queda montada read-only desde `/opt/avatar/assets`.
+La foto y el video no están en git y no entran en la imagen. Quedan montados read-only desde `/opt/avatar/assets`.
 
-Si la cambiás, volvé a subirla. Como se monta la carpeta completa, no hace falta rebuildear.
+Si los cambiás, volvé a subirlos. Como se monta la carpeta completa, no hace falta rebuildear.
 
 ### 4. Configurar el deploy local
 
@@ -215,7 +227,7 @@ npm run deploy
 
 El script:
 
-1. Sincroniza el código con `rsync` (sin tocar `.env` ni `assets/face.jpg`).
+1. Sincroniza el código con `rsync` (sin tocar `.env`, `assets/face.jpg` ni `assets/face.mp4`).
 2. Entra por SSH a `/opt/avatar`.
 3. Buildea `avatar:<sha>` y ejecuta `docker compose up -d --wait`.
 4. Verifica que `https://.../` responda `401` por basic auth.
@@ -234,10 +246,11 @@ Las imágenes quedan taggeadas con el SHA. Para volver a una anterior:
 ssh deploy@TU_VPS 'cd /opt/avatar && IMAGE_TAG=<sha-viejo> docker compose up -d --no-build --wait'
 ```
 
-### Actualizar la foto
+### Actualizar la foto o el video
 
 ```bash
 rsync -av assets/face.jpg deploy@TU_VPS:/opt/avatar/assets/
+rsync -av assets/face.mp4 deploy@TU_VPS:/opt/avatar/assets/
 ```
 
 No hace falta rebuildear ni reiniciar: el contenedor monta la carpeta `assets/`.
@@ -272,12 +285,13 @@ La app ya manda `X-Accel-Buffering: no` en `/api/events`. No agregues un middlew
 4. El botón de micrófono se habilita cuando la pantalla está conectada.
 5. Dictado: aparece la barra de envío y se va solo a los 1,5 s.
 6. **Cancelar** descarta el dictado; **Detener** corta el audio.
-7. Solo la pantalla primaria reproduce. Si abrís una segunda, muestra “Pantalla secundaria”.
+7. El botón **Visual** cambia entre **Cara** y **Video** en la pantalla.
+8. Solo la pantalla primaria reproduce. Si abrís una segunda, muestra “Pantalla secundaria”.
 
 ## Seguridad
 
 - `.env` no está en git, no está en la imagen y no se sincera por rsync.
-- La foto tampoco está en git ni en la imagen.
+- La foto y el video tampoco están en git ni en la imagen.
 - El contenedor no publica puertos; solo Traefik lo alcanza por la red `proxy`.
 - La API key de Fish queda en el entorno del contenedor. Cualquiera con root o acceso al grupo `docker` en la VPS puede verla; es el límite de confianza de una VPS dedicada.
 - **No escales a dos réplicas**: el estado de displays, control y display primario está en memoria. Dos contenedores romperían la lógica de audio único.
@@ -292,6 +306,7 @@ styles.css                Estilos
 lib/voice.js              Adaptador de Fish Audio / demo
 assets/audio/             Los 12 MP3
 assets/face.jpg           Foto privada (no versionada)
+assets/face.mp4           Video privado (no versionado)
 Dockerfile                Imagen Node sin Whisper ni Python
 docker-compose.yml        Producción con Traefik
 docker-compose.local.yml  Prueba local del contenedor

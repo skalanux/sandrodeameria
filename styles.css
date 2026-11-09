@@ -107,7 +107,8 @@ body.speaking .avatar-bob {
   animation-play-state: paused;
 }
 
-.avatar-bob img {
+.avatar-bob img,
+.avatar-bob video {
   display: block;
   width: auto;
   height: auto;
@@ -119,6 +120,30 @@ body.speaking .avatar-bob {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08),
     0 36px 90px rgba(0, 0, 0, 0.58);
+}
+
+.avatar-bob video {
+  object-fit: contain;
+}
+
+.avatar-bob img.hidden,
+.avatar-bob video.hidden {
+  display: none;
+}
+
+/* El video ya trae su propio movimiento: no lo animamos por CSS. */
+body.video-mode .avatar-wrap {
+  transform: none !important;
+  transition: none;
+}
+
+body.video-mode .avatar-bob {
+  animation: none !important;
+}
+
+body.video-mode #mouth,
+body.video-mode #calibrateBtn {
+  display: none;
 }
 
 .stage-caption {
@@ -170,7 +195,12 @@ body.speaking .live-dot {
   inset: 0;
   overflow: hidden;
   border-radius: 50%;
-  background: radial-gradient(ellipse at 50% 28%, #43141b 0%, #26080d 55%, #140306 100%);
+  background: radial-gradient(
+    ellipse at 50% 28%,
+    #d33a3a 0%,
+    #a51d2d 55%,
+    #6e1018 100%
+  );
   transform: scaleY(calc(0.09 + var(--open, 0) * 0.91));
   transform-origin: 50% 50%;
   box-shadow:
@@ -392,6 +422,47 @@ body.calibrating .avatar-wrap {
 
 .presence-note.hidden {
   display: none;
+}
+
+.visual-row {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.visual-label {
+  color: var(--faint);
+  font-size: 10px;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.visual-btn {
+  padding: 7px 12px;
+  border: 1px solid rgba(255, 184, 107, 0.35);
+  border-radius: 9px;
+  background: rgba(255, 184, 107, 0.08);
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.16s ease;
+}
+
+.visual-btn:hover:not(:disabled) {
+  background: rgba(255, 184, 107, 0.16);
+}
+
+.visual-btn[data-mode="video"] {
+  border-color: rgba(110, 231, 183, 0.4);
+  background: rgba(110, 231, 183, 0.12);
+  color: var(--mint);
+}
+
+.visual-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .section {
@@ -803,7 +874,8 @@ html:not([data-mode="control"]) .pending-bar {
     padding: 20px 16px 56px;
   }
 
-  .avatar-bob img {
+  .avatar-bob img,
+  .avatar-bob video {
     max-height: 40dvh;
   }
 
@@ -887,7 +959,8 @@ html[data-mode="display"] .stage {
   padding: 24px 24px 72px;
 }
 
-html[data-mode="display"] .avatar-bob img {
+html[data-mode="display"] .avatar-bob img,
+html[data-mode="display"] .avatar-bob video {
   height: 78vh;
   width: auto;
   max-width: 92vw;

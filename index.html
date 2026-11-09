@@ -26,6 +26,7 @@
       <div class="avatar-wrap" id="avatarWrap">
         <div class="avatar-bob">
           <img id="face" src="assets/face.svg" alt="Retrato del amigo que da vida al avatar" draggable="false">
+          <video id="faceVideo" class="face-video hidden" muted loop playsinline preload="auto" aria-label="Retrato animado del amigo"></video>
           <div id="mouth" class="mouth" aria-hidden="true">
             <div class="mouth-inner">
               <div class="teeth"></div>
@@ -43,10 +44,9 @@
 
     <aside class="controls" aria-label="Controles del avatar">
       <header class="brand">
-        <div class="brand-mark" aria-hidden="true">A</div>
         <div class="brand-text">
           <h1>Sandro de Americ IA</h1>
-          <p class="subtitle" id="subtitle">Muestra escolar</p>
+          <p class="subtitle" id="subtitle">Avatar Virtual</p>
         </div>
         <div class="top-actions">
           <button id="fullscreenBtn" class="icon-btn" type="button" title="Pantalla completa" aria-label="Pantalla completa">
@@ -66,9 +66,16 @@
       <div id="providerBadge" class="badge">Voz de prueba · no clonada</div>
       <div id="presenceNote" class="presence-note hidden"></div>
 
+      <div class="visual-row" id="visualRow">
+        <span class="visual-label">Visual</span>
+        <button id="visualBtn" class="visual-btn" type="button" data-mode="face" aria-pressed="false" title="Cambiar entre cara y video">
+          <span id="visualLabel">Cara</span>
+        </button>
+      </div>
+
       <section class="section">
         <div class="section-head">
-          <h2>Frases</h2>
+          <h2>Frases pregrabadas</h2>
           <span id="phraseCount" class="count">—</span>
         </div>
         <div id="phraseGrid" class="phrase-grid" aria-label="Frases del avatar"></div>

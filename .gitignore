@@ -5,6 +5,7 @@ assets/cache/
 assets/face.jpg
 assets/face.png
 assets/face.webp
+assets/face.mp4
 assets/voz-amigo.*
 .DS_Store
 .venv/
@@ -16,3 +17,4 @@ certs/
 vendor/
 models/
 tmp/
+.vercel
